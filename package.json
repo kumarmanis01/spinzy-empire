@@ -60,6 +60,7 @@
     "type-check:orig": "tsc -p tsconfig.json --noEmit",
     "clear-auth": "set CONFIRM=true && node -r ts-node/register scripts/clear-auth-tables.ts",
     "pretest": "npx prisma generate",
+    "generate-app": "node app-factory/scripts/generate_and_validate.cjs",
     "test": "jest",
     "test:ci": "npm run lint:orig && npm run type-check:orig && npm run test:unit",
     "test:watch": "jest --watch",
