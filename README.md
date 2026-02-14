@@ -42,6 +42,18 @@
 4. Run locally: `npm run dev`
 5. Open http://localhost:3000
 
+## Generating micro-apps
+
+Create new micro-apps from the `app-factory` template using the repository's generator.
+
+Preferred command (from repo root):
+
+```bash
+npm run generate-app -- app-factory/app-template app-factory/generated-apps/<your-app-name>
+```
+
+This will copy the full `app-factory/app-template` directory into `app-factory/generated-apps/<your-app-name>` and run the built-in validator to ensure required files and imports are present. See `app-factory/GENERATE_APP.md` for more details.
+
 ## Notes
 
 - Phase 2 provides multilingual chat (English/Hindi), speech (TTS + mic), accessibility, local storage.

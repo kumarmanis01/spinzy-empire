@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { callCapability } from '../../app-template/services/capabilityClient';
+import { callCapability } from '../services/capabilityClient';
 import config from '../../app-config/photosynthesis-explainer.json';
 
 export interface InputScreenProps {
@@ -21,8 +21,8 @@ export function InputScreen({ onResult }: InputScreenProps) {
       };
       const res = await callCapability(config.capability, payload);
       onResult(res);
-    } catch (err) {
-      onResult({ success: false, error: 'invoke-failed' });
+    } catch (_err) {
+      onResult({ success: false, error: 'invoke-failed' })
     } finally {
       setLoading(false);
     }
