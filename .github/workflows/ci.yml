@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint --if-present -- --max-warnings=0
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Build
+        run: npm run build
+
+      - name: Run unit tests
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: npm run test:unit
+name: CI
+
+# Workflow purpose: consolidated lint + type-check CI for PRs and pushes.
+# Owned by: engineering
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+
+jobs:
+  lint-type:
+    name: Lint & Type-check
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install
+        run: npm ci
+      - name: Run CI prebuild checks
+        run: npm run ci:prebuild
+      - name: Apply Prisma migrations (if DATABASE_URL valid)
+        if: github.event_name == 'push'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "Checking DATABASE_URL before running migrations"
+          if [ -z "${DATABASE_URL}" ]; then
+            echo "DATABASE_URL not set — skipping prisma migrate"
+            exit 0
+          fi
+          if [[ "${DATABASE_URL}" != postgresql://* && "${DATABASE_URL}" != postgres://* ]]; then
+            echo "DATABASE_URL does not appear to be a Postgres URL — skipping prisma migrate"
+            exit 0
+          fi
+          echo "DATABASE_URL looks valid — applying migrations"
+          npx prisma migrate deploy
+          npx prisma generate
+      - name: Apply Prisma migrations (skip notice)
+        if: env.DATABASE_URL == ''
+        run: |
+          echo "DATABASE_URL not set — skipping prisma migrate. Ensure CI sets DATABASE_URL for DB-backed integration tests."
+      - name: Lint
+        run: npm run lint
+      - name: Type-check
+        run: npm run type-check
+      - name: Run ESLint custom rule tests
+        run: npm run test:eslint-rules
+# NOTE: Integration tests are handled in the dedicated
+# `ci-alert-evaluator.yml` workflow. We keep this CI workflow
+# minimal (lint + type-check) to reduce duplicate runs and
+# avoid conditional failures when secrets are not present.

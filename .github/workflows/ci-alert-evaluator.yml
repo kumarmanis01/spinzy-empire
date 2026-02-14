@@ -1,0 +1,118 @@
+name: CI - Alert Evaluator
+
+# Integration tests for Alert Evaluator. These tests are expensive (DB-backed).
+# To reduce noise we limit automatic runs: push to `develop`/`master`, and
+# pull requests only trigger when files under `tests/`, `lib/`, or `prisma/`
+# change. Manual `workflow_dispatch` is available for ad-hoc runs.
+on:
+  push:
+    branches:
+      - develop
+      - master
+  pull_request:
+    paths:
+      - 'tests/**'
+      - 'lib/**'
+      - 'prisma/**'
+  workflow_dispatch: {}
+
+jobs:
+  integration:
+    name: Integration Tests (Alert Evaluator)
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: '0'
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    # DATABASE_URL cannot reference `job.services` at the job-level (not available
+    # when expressions are evaluated). We set the mapped port and DATABASE_URL at
+    # runtime in the "Wait for Postgres" step and export it to GITHUB_ENV so
+    # subsequent steps can use it.
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Cache Node modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.cache
+            node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+
+      - name: Helm lint chart
+        run: helm lint deployment/helm/evaluator-chart
+
+      - name: Wait for Postgres
+        run: |
+          sudo apt-get update && sudo apt-get install -y postgresql-client
+          # Use the Actions-provided mapped port and localhost so the runner can reach the service
+          PORT=${{ job.services.postgres.ports[5432] }}
+          echo "Using mapped Postgres port: $PORT"
+          # Export DATABASE_URL for later steps via GITHUB_ENV (safe at runtime)
+          echo "DATABASE_URL=postgres://postgres:postgres@127.0.0.1:$PORT/ai_tutor_test" >> $GITHUB_ENV
+          until pg_isready -h 127.0.0.1 -p $PORT -U postgres; do
+            echo "Waiting for Postgres on 127.0.0.1:$PORT..."; sleep 1;
+          done
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Prepare DB role and test database
+        run: |
+          # Create a role and test database if they don't exist so migrations can run reliably in CI
+          PORT=${{ job.services.postgres.ports[5432] }}
+          export PGPASSWORD=postgres
+          echo "Creating role 'root' and database 'ai_tutor_test' if they do not exist"
+          psql -h 127.0.0.1 -p $PORT -U postgres -tc "SELECT 1 FROM pg_roles WHERE rolname='root'" | grep -q 1 || psql -h 127.0.0.1 -p $PORT -U postgres -c "CREATE ROLE root LOGIN;"
+          psql -h 127.0.0.1 -p $PORT -U postgres -tc "SELECT 1 FROM pg_database WHERE datname='ai_tutor_test'" | grep -q 1 || psql -h 127.0.0.1 -p $PORT -U postgres -c "CREATE DATABASE ai_tutor_test OWNER root;"
+
+      - name: Apply migrations
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: |
+          echo "Applying migrations against $DATABASE_URL"
+          # Run committed migrations in CI. We no longer fall back to `prisma db push`.
+          # If migrations are missing or fail, CI will fail and reviewers can inspect.
+          npx prisma migrate deploy
+
+      - name: Run evaluator integration tests
+        run: npm run test:integration:evaluator
+
+      - name: Run evaluator dry-run integration (optional)
+        if: secrets.ALLOW_EVALUATOR_DRY_RUN == '1'
+        run: npm run test:integration:dry-run
+
+      - name: Teardown test database (fast)
+        if: always()
+        run: |
+          PORT=${{ job.services.postgres.ports[5432] }}
+          export PGPASSWORD=postgres
+          echo "Dropping test database ai_tutor_test"
+          psql -h 127.0.0.1 -p $PORT -U postgres -c "DROP DATABASE IF EXISTS ai_tutor_test;" || true
