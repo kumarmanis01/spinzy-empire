@@ -1,6 +1,7 @@
 /* eslint-disable no-console, @typescript-eslint/no-unused-vars */
 import fs from 'fs/promises'
 import path from 'path'
+import { fileURLToPath } from 'url'
 
 /**
  * Portfolio map entry for a generated app
@@ -96,7 +97,8 @@ export async function buildCapabilityAppList(configDir?: string): Promise<Record
 /**
  * Example CLI runner (when executed with ts-node). Not required by any runtime.
  */
-if (require.main === module) {
+const __filename = fileURLToPath(import.meta.url)
+if (process.argv[1] === __filename) {
   ;(async () => {
     const map = await buildCapabilityAppList()
     // Print a compact JSON map to stdout
