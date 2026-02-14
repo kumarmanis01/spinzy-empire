@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { callCapability } from '../../app-template/services/capabilityClient'
+import { callCapability } from '../services/capabilityClient'
 import config from '../../app-config/quick-solver.json'
 
 export interface InputScreenProps {
