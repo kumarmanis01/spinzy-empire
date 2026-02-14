@@ -15,6 +15,7 @@ export type UsageSignals = {
   highDoubtFrequency?: boolean
   examMode?: boolean
   lowConsistency?: boolean
+  topic?: string
 }
 
 export interface GravityInput {
@@ -35,6 +36,7 @@ export interface GravityOutput {
 export function routeNextApp(input: GravityInput): GravityOutput {
   const { currentApp, capabilityUsed, usageSignals } = input
   const { repeatedTopic, highDoubtFrequency, examMode, lowConsistency } = usageSignals || {}
+  const topic = usageSignals?.topic
 
   // 1) Exam mode is top priority
   if (examMode) {
@@ -53,6 +55,13 @@ export function routeNextApp(input: GravityInput): GravityOutput {
   }
 
   // 3) Repeated topic seen: prefer topic explainer; if already saw explainer, suggest revision
+  // 2.5) Topic-specific rules (e.g., algebra)
+  if (topic && /algebra/i.test(topic)) {
+    return {
+      recommendedApp: 'algebra-explainer',
+      reason: 'Topic mentions algebra — suggest the algebra explainer.'
+    }
+  }
   if (repeatedTopic) {
     if (currentApp === 'topic-explainer' || currentApp === 'topic-explanation') {
       return {
