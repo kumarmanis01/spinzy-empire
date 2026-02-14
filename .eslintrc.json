@@ -1,0 +1,84 @@
+{
+  "root": true,
+  "extends": [
+    "next/core-web-vitals",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "prettier"],
+  "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "next/navigation",
+            "importNames": ["useRouter"],
+            "message": "Do not use router.refresh() in admin pages. Use SWR mutate()."
+          },
+          {
+            "name": "@/lib/prisma",
+            "message": "Do not import Prisma client directly in UI or admin pages. Use server API routes."
+          },
+          {
+            "name": "@/lib/callLLM",
+            "message": "Do not call LLMs from UI or API handlers directly. Use job-based workers and lib/callLLM only from workers."
+          }
+        ]
+      }
+    ],
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto",
+        "singleQuote": true,
+        "semi": true,
+        "tabWidth": 2,
+        "printWidth": 100,
+        "trailingComma": "es5"
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
+    "@typescript-eslint/no-explicit-any": "warn",
+    "no-console": [
+      "warn",
+      {
+        "allow": ["warn", "error", "info"]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["**/*.cjs"],
+      "rules": {
+        "@typescript-eslint/no-require-imports": "off"
+      }
+    },
+    {
+      "files": ["app/api/**/*.ts"],
+      "rules": {}
+    },
+    {
+      "files": ["tests/**/*.ts", "tests/**/*.tsx"],
+      "rules": {
+        "no-console": "off",
+        "@typescript-eslint/no-require-imports": "off"
+      }
+    }
+  ],
+  "ignorePatterns": ["node_modules/", ".next/", "out/", "public/"],
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
+  }
+}

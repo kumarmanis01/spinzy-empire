@@ -1,0 +1,35 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist/worker",
+    "rootDir": ".",
+    "composite": false,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ES2022",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*", "*"] ,
+      "@/worker/*": ["worker/*"]
+    }
+  },
+  "include": [
+    "worker/**/*.ts",
+    "lib/**/*.ts",
+    "regeneration/**/*.ts",
+    "hydrators/**/*.ts",
+    "jobs/**/*.ts",
+    "queues/**/*.ts",
+    "producers/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "tests",
+    "scripts",
+    "worker/k8s-adapter.ts",
+    "worker/metrics-server.ts"
+  ]
+}
