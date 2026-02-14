@@ -55,16 +55,32 @@ export async function processNextJob() {
     }
 
     if (process.env.NODE_ENV === 'test') {
-      logger.debug('regenerationWorker: about to call prisma.regenerationOutput.create')
+      logger.debug('regenerationWorker: about to persist output and complete job')
     }
-    const out = await prisma.regenerationOutput.create({ data: {
-      jobId: claimed.id,
-      targetType: (claimed as any).targetType,
-      targetId: (claimed as any).targetId,
-      contentJson: output.outputJson,
-    } })
-    if (process.env.NODE_ENV === 'test') {
-      logger.debug('regenerationWorker: after prisma.regenerationOutput.create')
+
+    // Persist output with a small retry loop to handle transient FK visibility
+    // or short transaction start failures in CI/Neon environments.
+    let out: any = null
+    const maxAttempts = 6
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        out = await prisma.regenerationOutput.create({ data: {
+          jobId: claimed.id,
+          targetType: (claimed as any).targetType,
+          targetId: (claimed as any).targetId,
+          contentJson: output.outputJson,
+        } })
+        break
+      } catch (e: any) {
+        const msg = String(e?.message ?? e)
+        const fk = msg.includes('Foreign key constraint') || msg.includes('foreign key')
+        const txErr = msg.includes('Unable to start a transaction')
+        if (attempt === maxAttempts || (!fk && !txErr)) {
+          throw e
+        }
+        // back off briefly
+        await new Promise((r) => setTimeout(r, 300 * attempt))
+      }
     }
 
     const outputRef = { outputId: out.id, createdAt: out.createdAt }
