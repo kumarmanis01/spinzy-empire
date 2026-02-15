@@ -95,11 +95,7 @@ export default function RecommendedSection({ user }: { user?: any }) {
   return (
     <section className="mt-6">
       <div className="flex items-center justify-between">
-<<<<<<< HEAD
         <h2 className="text-lg font-semibold">{header}</h2>
-=======
-        <h2 className="text-lg font-semibold">Popular For Your Subjects</h2>
->>>>>>> origin/main
       </div>
       <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
         {toRender.map((it) => (
