@@ -1,5 +1,3 @@
-"use client"
-
 import React, { useState } from 'react'
 import { Progress } from '../progress/Progress'
 import { InputScreen } from '../input-screen/InputScreen'

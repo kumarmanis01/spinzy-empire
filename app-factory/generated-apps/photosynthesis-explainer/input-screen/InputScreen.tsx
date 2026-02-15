@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { callCapability } from '../services/capabilityClient';
-import config from '@/app-factory/app-config/photosynthesis-explainer.json';
+import config from '../../../app-config/photosynthesis-explainer.json';
 
 export interface InputScreenProps {
   onResult: (data: any) => void;
