@@ -53,3 +53,5 @@ export function InputScreen({ onResult }: InputScreenProps) {
     </div>
   );
 }
+
+export default InputScreen;

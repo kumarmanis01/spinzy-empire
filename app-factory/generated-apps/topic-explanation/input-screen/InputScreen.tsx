@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { callCapability } from '../services/capabilityClient'
+import config from '../config.json'
 
 export interface InputScreenProps {
   onResult: (data: any) => void
@@ -16,8 +17,16 @@ export function InputScreen({ onResult, initialQuery }: InputScreenProps) {
   async function explain() {
     setLoading(true)
     try {
-      const payload = { query, language }
-      const res = await callCapability('topic_explanation', payload)
+      const payload = { question: query, context: { language } }
+      const res = await callCapability(config.capability, payload)
+      if (res && (res as any).success === true) {
+        try {
+          localStorage.setItem('lastTopic', query)
+          localStorage.setItem('lastCapability', config.capability)
+        } catch (_) {
+          // ignore localStorage errors (e.g., SSR or privacy settings)
+        }
+      }
       onResult(res)
     } catch (_err) {
       onResult({ success: false, error: 'invoke-failed' })

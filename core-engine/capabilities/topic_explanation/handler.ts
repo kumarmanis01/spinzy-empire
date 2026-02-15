@@ -5,15 +5,23 @@ export async function handleTopicExplanation(
   req: TopicExplanationRequest
 ): Promise<TopicExplanationResponse> {
   try {
+    // Accept both the new standardized shape and legacy fields.
+    const topic = req.topicId ?? req.question ?? 'General Topic';
+    const language = req.context?.language ?? 'English';
+    const grade = req.context?.grade ?? 5;
+    const board = req.context?.board ?? 'CBSE';
+    const subject = req.context?.subject ?? 'General';
+    const depth = req.depth ?? 'summary';
+
     const input = {
-      grade: 5,
-      board: 'CBSE',
-      language: 'English',
-      subject: 'General',
+      grade,
+      board,
+      language,
+      subject,
       chapter: 'Overview',
-      topic: req.topicId ?? 'General Topic',
+      topic,
       topicId: req.topicId,
-      explanationLevel: req.depth === 'summary' ? 'simple' : 'detailed',
+      explanationLevel: depth === 'summary' ? 'simple' : 'detailed',
       preferredLength: 'medium',
     } as any;
 

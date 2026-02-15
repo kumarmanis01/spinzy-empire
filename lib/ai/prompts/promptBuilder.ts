@@ -152,6 +152,21 @@ export async function generateNotes(
   sessionId: string
 ): Promise<PromptResult<NotesOutputSchema>> {
   const metadata = generateMetadata('notes', userIdHash, sessionId);
+  // Development mock path: return deterministic notes when LLM_MOCK=1
+  if (process.env.LLM_MOCK === '1') {
+    return {
+      success: true,
+      data: {
+        coreExplanation: [
+          { content: `${input.topic} is explained clearly for grade ${input.grade}. This is a mock explanation for development.` },
+        ],
+        workedExamples: [],
+      } as any,
+      error: null,
+      validationErrors: [],
+      metadata,
+    };
+  }
   
   // Build prompts
   const systemPrompt = buildSystemPrompt(input.grade, input.language);
