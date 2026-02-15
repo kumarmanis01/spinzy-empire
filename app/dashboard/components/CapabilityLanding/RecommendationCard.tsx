@@ -9,19 +9,6 @@ interface RecommendationCardProps {
 }
 
 export function RecommendationCard({ name, description, href }: RecommendationCardProps) {
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    try {
-      // derive app slug like 'photosynthesis-explainer' from '/apps/photosynthesis-explainer'
-      const slug = href.replace(/^\/apps\/?/, '').replace(/(^\/|\/$)/g, '');
-      if (slug) {
-        window.localStorage.setItem('lastAppVisited', slug);
-      }
-    } catch (_err) {
-      // no-op on failure
-    }
-    // allow default navigation
-  };
-
   return (
     <div className="border rounded-lg p-4 flex flex-col justify-between shadow-sm bg-white">
       <div>
@@ -31,7 +18,12 @@ export function RecommendationCard({ name, description, href }: RecommendationCa
       <div className="mt-4 text-right">
         <a
           href={href}
-          onClick={handleClick}
+          onClick={() => {
+            try {
+              const slug = href.replace(/^\/apps\/?/, '').replace(/(^\/|\/$)/g, '');
+              if (slug) window.localStorage.setItem('lastAppVisited', slug);
+            } catch (_err) {}
+          }}
           className="inline-flex items-center px-3 py-1.5 bg-primary text-white rounded-md text-sm"
         >
           Open
