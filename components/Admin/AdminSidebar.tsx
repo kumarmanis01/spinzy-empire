@@ -221,6 +221,7 @@ interface NavItem {
 const contentGenerationLinks: NavItem[] = [
   { href: '/admin/ai-dashboard', label: 'Dashboard', icon: 'Dashboard' },
   { href: '/admin/content-engine/control-panel', label: 'AI Generation', icon: 'Generate' },
+  { href: '/admin/generate-app', label: 'Generate App', icon: 'Generate' },
   {
     href: '/admin/content-engine/hydrateAll',
     label: 'HydrateAll Pipeline',
