@@ -97,7 +97,19 @@ const BOARDS: BoardSeed[] = [
           { name: "Computer Applications", slug: "computer-applications" },
         ],
       },
-      { grade: 10, subjects: [] },
+      {
+        grade: 10,
+        subjects: [
+          { name: "English", slug: "english" },
+          { name: "Mathematics", slug: "mathematics" },
+          { name: "Physics", slug: "physics" },
+          { name: "Chemistry", slug: "chemistry" },
+          { name: "Biology", slug: "biology" },
+          { name: "History", slug: "history" },
+          { name: "Geography", slug: "geography" },
+          { name: "Economics", slug: "economics" }
+        ],
+      },
       {
         grade: 11,
         subjects: [
