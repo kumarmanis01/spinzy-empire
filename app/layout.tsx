@@ -16,6 +16,7 @@
 import React, { Suspense } from 'react';
 import GoogleTagManagerClient from '@/components/ClientOnly/GoogleTagManagerClient';
 import AppModalClient from '@/components/ClientOnly/AppModalClient';
+import CapabilityRuntimeBridge from '@/components/ClientCapabilityInvoker';
 import '../styles/index.css';
 import Providers from './providers';
 import { GlobalLoaderProvider } from '@/context/GlobalLoaderProvider';
@@ -48,6 +49,7 @@ export default function RootLayout({
         <Providers>
           <GlobalLoaderProvider>
             <AuthSessionLoader />
+            <CapabilityRuntimeBridge />
             {/* Google Tag Manager for external analytics & conversion tracking */}
             <Suspense fallback={null}>
               <GoogleTagManagerClient />

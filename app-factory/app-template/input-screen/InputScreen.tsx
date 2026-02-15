@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import { callCapability } from '../services/capabilityClient';
 
+/* TEMPLATE PLACEHOLDER: The generator should replace this commented line with a concrete import
+  pointing to the app's config in the central app-config folder. Example replacement:
+
+  import config from '@/app-factory/app-config/${APP_NAME}.json';
+
+  The line is intentionally commented to keep this template TypeScript-valid.
+*/
+
 export interface InputScreenProps {
   onResult: (data: any) => void;
 }
@@ -45,3 +53,5 @@ export function InputScreen({ onResult }: InputScreenProps) {
     </div>
   );
 }
+
+export default InputScreen;

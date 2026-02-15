@@ -13,7 +13,18 @@ import useCurrentUser from '@/hooks/useCurrentUser';
  */
 export default function Dashboard() {
   const { data: user } = useCurrentUser() as any;
-  const isColdStart = true; // deterministic cold-start until activity service exists
+  const [lastTopic, setLastTopic] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    try {
+      const v = localStorage.getItem('lastTopic');
+      setLastTopic(v);
+    } catch (_) {
+      setLastTopic(null);
+    }
+  }, []);
+
+  const isColdStart = !lastTopic; // deterministic cold-start until activity service exists
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">

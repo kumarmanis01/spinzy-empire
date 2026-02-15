@@ -16,7 +16,16 @@ export function RecommendationCard({ name, description, href }: RecommendationCa
         <p className="text-sm text-muted-foreground mt-1">{description}</p>
       </div>
       <div className="mt-4 text-right">
-        <a href={href} className="inline-flex items-center px-3 py-1.5 bg-primary text-white rounded-md text-sm">
+        <a
+          href={href}
+          onClick={() => {
+            try {
+              const slug = href.replace(/^\/apps\/?/, '').replace(/(^\/|\/$)/g, '');
+              if (slug) window.localStorage.setItem('lastAppVisited', slug);
+            } catch (_err) {}
+          }}
+          className="inline-flex items-center px-3 py-1.5 bg-primary text-white rounded-md text-sm"
+        >
           Open
         </a>
       </div>

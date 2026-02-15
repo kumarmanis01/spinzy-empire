@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { callCapability } from '../services/capabilityClient';
-import config from '../../app-config/photosynthesis-explainer.json';
+import config from '@/app-factory/app-config/photosynthesis-explainer.json';
 
 export interface InputScreenProps {
   onResult: (data: any) => void;
@@ -13,11 +13,12 @@ export function InputScreen({ onResult }: InputScreenProps) {
   async function explain() {
     setLoading(true);
     try {
+      // Use the standardized capability contract: { question, context }
       const payload = {
-        userId: 'demo-user',
-        topicId: config.defaultTopic,
-        depth: 'summary',
-        language,
+        question: config.defaultTopic,
+        context: {
+          language,
+        },
       };
       const res = await callCapability(config.capability, payload);
       onResult(res);
