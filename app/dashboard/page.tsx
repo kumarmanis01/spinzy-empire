@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import StudentHomeDashboard from './components/StudentHomeDashboard';
+import Dashboard from './components/Dashboard';
 import { redirect } from 'next/navigation';
 import { requireActiveSession } from '@/lib/auth';
 
@@ -15,5 +15,5 @@ export default async function StudentHomeDashboardPage() {
     redirect(`/`);
   }
 
-  return <StudentHomeDashboard />;
+  return <Dashboard />;
 }
