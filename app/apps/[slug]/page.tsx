@@ -1,9 +1,11 @@
 import ClientAppLoader from "./ClientAppLoader";
 
-export default function AppPage({
+export default async function AppPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  return <ClientAppLoader slug={params.slug} />;
+  const { slug } = await params;
+
+  return <ClientAppLoader slug={slug} />;
 }
