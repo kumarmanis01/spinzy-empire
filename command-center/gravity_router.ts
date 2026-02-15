@@ -91,6 +91,9 @@ export function routeNextApp(input: GravityInput): GravityOutput {
     }
   }
 
+  // topic_explanation treated as neutral entry
+  // allow gravity to decide based on behavioral signals
+
   if (capabilityUsed === 'study_planning') {
     return {
       recommendedApp: 'daily-tasks',

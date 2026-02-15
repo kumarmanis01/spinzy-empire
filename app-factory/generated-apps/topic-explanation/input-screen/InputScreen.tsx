@@ -1,39 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { callCapability } from '../services/capabilityClient';
+"use client"
+
+import React, { useEffect, useState } from 'react'
+import { callCapability } from '../services/capabilityClient'
 
 export interface InputScreenProps {
-  onResult: (data: any) => void;
-  initialQuery?: string | undefined;
+  onResult: (data: any) => void
+  initialQuery?: string
 }
 
 export function InputScreen({ onResult, initialQuery }: InputScreenProps) {
-  const [query, setQuery] = useState(initialQuery ?? '');
-  const [language, setLanguage] = useState<string>('English');
-  const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState(initialQuery ?? '')
+  const [language, setLanguage] = useState<string>('English')
+  const [loading, setLoading] = useState(false)
 
   async function explain() {
-    setLoading(true);
+    setLoading(true)
     try {
-      const payload = {
-        query,
-        language,
-      };
-      const res = await callCapability('topic_explanation', payload);
-      onResult(res);
+      const payload = { query, language }
+      const res = await callCapability('topic_explanation', payload)
+      onResult(res)
     } catch (_err) {
-      onResult({ success: false, error: 'invoke-failed' });
+      onResult({ success: false, error: 'invoke-failed' })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   useEffect(() => {
-    // auto-submit when initialQuery is provided
-    if (initialQuery && initialQuery.trim().length > 0) {
-      explain();
-    }
+    if (initialQuery && initialQuery.trim().length > 0) explain()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [])
 
   return (
     <div style={{ marginTop: 12 }}>
@@ -55,5 +51,7 @@ export function InputScreen({ onResult, initialQuery }: InputScreenProps) {
         <button onClick={explain} disabled={loading}>{loading ? 'Explaining...' : 'Get Explanation'}</button>
       </div>
     </div>
-  );
+  )
 }
+
+export default InputScreen

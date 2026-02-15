@@ -6,6 +6,7 @@ import ThemeProvider from '@/components/UI/ThemeProvider';
 import OnboardingModal from '@/components/Onboarding/OnboardingModal';
 import { OnboardingProvider, useOnboarding } from '@/context/OnboardingProvider';
 import AlertModal from '@/components/UI/AlertModal';
+import ClientCapabilityInvoker from '@/components/ClientCapabilityInvoker';
 
 function AuthAwareLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -27,6 +28,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <SessionProvider>
       <ThemeProvider>
         <OnboardingProvider>
+          <ClientCapabilityInvoker />
           <AuthAwareLayout>{children}</AuthAwareLayout>
           <AlertModal />
           {/* Bind provider state to presentational modal */}

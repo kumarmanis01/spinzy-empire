@@ -1,4 +1,6 @@
-import React from 'react';
+"use client"
+
+import React from 'react'
 
 export function ResultScreen({ data, onBack }: { data: any; onBack: () => void }) {
   return (
@@ -9,7 +11,7 @@ export function ResultScreen({ data, onBack }: { data: any; onBack: () => void }
         <button onClick={onBack}>Back</button>
       </div>
     </div>
-  );
+  )
 }
 
-export default ResultScreen;
+export default ResultScreen
