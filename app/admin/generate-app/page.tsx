@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function GenerateAppPage() {
   const [topic, setTopic] = useState("");
   const [capability, setCapability] = useState("topic_explanation");
   const [status, setStatus] = useState("");
+  const [suggested, setSuggested] = useState<any[]>([]);
 
   async function handleGenerate() {
     setStatus("Generating...");
@@ -28,6 +29,29 @@ export default function GenerateAppPage() {
       setStatus(`Error: ${err?.message ?? 'network error'}`);
     }
   }
+
+  async function handleGenerateFromIdea(idea: any) {
+    const topic = idea.name.replace(" Explainer", "");
+    await fetch("/api/admin/generate-app", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        topic,
+        capability: idea.requiredCapability,
+      }),
+    });
+  }
+
+  useEffect(() => {
+    fetch("/api/admin/suggested-apps")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setSuggested(data.ideas);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="max-w-xl mx-auto p-6">
@@ -57,6 +81,29 @@ export default function GenerateAppPage() {
       </button>
 
       <div className="mt-4">{status}</div>
+
+      <h2 className="mt-8 text-lg font-semibold">
+        Suggested Apps To Generate
+      </h2>
+
+      <div className="mt-4 space-y-4">
+        {suggested.map((idea, idx) => (
+          <div key={idx} className="border p-4">
+            <div className="font-medium">{idea.name}</div>
+            <div className="text-sm text-gray-600">
+              Capability: {idea.requiredCapability}
+            </div>
+            <div className="text-sm">Impact Score: {idea.impactScore}</div>
+
+            <button
+              onClick={() => handleGenerateFromIdea(idea)}
+              className="mt-2 bg-black text-white px-3 py-1"
+            >
+              Generate
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
