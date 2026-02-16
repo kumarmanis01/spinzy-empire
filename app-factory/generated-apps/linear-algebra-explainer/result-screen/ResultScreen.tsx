@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { TransitionMap } from '@/core-engine/gravity/transition_map';
 import Link from 'next/link';
 
 export interface ResultScreenProps {
@@ -10,14 +9,16 @@ export interface ResultScreenProps {
 }
 
 export function ResultScreen({ result, currentSlug }: ResultScreenProps) {
-  const nextApps = (currentSlug && TransitionMap[currentSlug]) || [];
+  const payload = result?.payload || result;
+  const nextSlug = payload?.nextSlug;
+  const nextApps = nextSlug ? (Array.isArray(nextSlug) ? nextSlug : [nextSlug]) : [];
 
   // Debugging helpers — remove or gate behind a flag in production
   try {
     // eslint-disable-next-line no-console
     console.log('ResultScreen currentSlug', currentSlug);
     // eslint-disable-next-line no-console
-    console.log('TransitionMap entry', TransitionMap[currentSlug]);
+    console.log('Result payload nextSlug', nextSlug);
   } catch {}
 
   return (
