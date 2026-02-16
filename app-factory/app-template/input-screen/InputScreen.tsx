@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { callCapability } from '../services/capabilityClient';
 
-/* TEMPLATE PLACEHOLDER: The generator should replace this commented line with a concrete import
-  pointing to the app's config in the central app-config folder. Example replacement:
+/* TEMPLATE PLACEHOLDER: The generator will replace this commented block with a concrete
+   relative import pointing to the app's config in the central app-config folder.
 
-  import config from '@/app-factory/app-config/${APP_NAME}.json';
+   Example replacement for a generated app located at
+   app-factory/generated-apps/<slug>/input-screen/InputScreen.tsx would be:
 
-  The line is intentionally commented to keep this template TypeScript-valid.
+   import config from '../../../app-config/${APP_NAME}.json';
+
+   Keep this block present so the generator can reliably patch it.
 */
 
 export interface InputScreenProps {
