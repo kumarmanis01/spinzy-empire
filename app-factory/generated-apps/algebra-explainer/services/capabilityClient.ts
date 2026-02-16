@@ -10,12 +10,17 @@ export type CapabilityResponse = {
  * The real runtime should wire capability names to server APIs or IPC.
  */
 export async function callCapability(capabilityName: string, payload: any): Promise<CapabilityResponse> {
-  // Thin transport: delegate to runtime invoker. Do not wrap or modify the runtime response.
-  // @ts-ignore - runtime-provided invoker may be attached to globalThis
-  if (typeof (globalThis as any).__capabilityInvoke !== 'function') {
-    return { success: false, error: 'capability-invoke-not-available' };
-  }
+  // Client-side shim: call a global endpoint if available.
+  // In this template we attempt to call a runtime-provided global handler if present.
+  try {
+    if (typeof (globalThis as any).__capabilityInvoke === 'function') {
+      const res = await (globalThis as any).__capabilityInvoke(capabilityName, payload);
+      return { success: true, data: res };
+    }
 
-  // @ts-ignore
-  return await (globalThis as any).__capabilityInvoke(capabilityName, payload);
+    // Fallback: no runtime available — return a standardized not-available response
+    return { success: false, error: 'capability-invoke-not-available' };
+  } catch (err: any) {
+    return { success: false, error: err?.message ?? 'unknown' };
+  }
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { callCapability } from '../services/capabilityClient'
-import config from '../../app-config/quick-solver.json'
+import config from '../../../app-config/quick-solver.json';
 
 export interface InputScreenProps {
   onResult: (data: any) => void

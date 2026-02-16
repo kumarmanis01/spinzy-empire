@@ -20,5 +20,5 @@ export default function ClientAppLoader({
 
   const DynamicApp = dynamic(importer, { ssr: false });
 
-  return <DynamicApp />;
+  return <DynamicApp currentSlug={slug} />;
 }

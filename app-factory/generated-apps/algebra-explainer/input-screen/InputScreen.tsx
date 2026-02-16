@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { callCapability } from '../services/capabilityClient';
 
+import config from '../../../app-config/algebra-explainer.json';
+
 export interface InputScreenProps {
   onResult: (data: any) => void;
 }
@@ -45,3 +47,5 @@ export function InputScreen({ onResult }: InputScreenProps) {
     </div>
   );
 }
+
+export default InputScreen;

@@ -21,8 +21,17 @@ export function InputScreen({ onResult, initialQuery }: InputScreenProps) {
       const res = await callCapability(config.capability, payload)
       if (res && (res as any).success === true) {
         try {
-          localStorage.setItem('lastTopic', query)
-          localStorage.setItem('lastCapability', config.capability)
+          const raw = localStorage.getItem('topicInterest') || '{}';
+          const existing = JSON.parse(raw);
+          const now = Date.now();
+          const key = query.trim();
+          const prev = existing[key] || { count: 0, lastViewed: 0 };
+          existing[key] = {
+            count: (prev.count || 0) + 1,
+            lastViewed: now,
+          };
+          localStorage.setItem('topicInterest', JSON.stringify(existing));
+          localStorage.setItem('lastCapability', config.capability);
         } catch (_) {
           // ignore localStorage errors (e.g., SSR or privacy settings)
         }

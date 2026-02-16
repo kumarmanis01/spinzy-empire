@@ -1,9 +1,8 @@
 export const GeneratedApps: Record<string, () => Promise<any>> = {
-  "algebra-explainer": () => import("./algebra-explainer/onboarding/App"),
-
-  "photosynthesis-explainer": () => import("./photosynthesis-explainer/onboarding/App"),
-
-  "linear-algebra-explainer": () => import("./linear-algebra-explainer/onboarding/App"),
+  "topic-explanation": () => import("./topic-explanation/onboarding/App"),
+  "math-quick-tips": () => import("./math-quick-tips/onboarding/App"),
+  "quick-solver": () => import("./quick-solver/onboarding/App"),
+  "sample-auto-config": () => import("./sample-auto-config/onboarding/App"),
 };
 
 export default GeneratedApps;
