@@ -43,6 +43,7 @@ async function main() {
   }
   const template = path.resolve(args[0])
   const dest = path.resolve(args[1])
+  const capability = args[2] || 'TODO_SELECT_CAPABILITY'
   const appName = path.basename(dest)
   console.log('Copying template', template, '->', dest)
   await copyRecursive(template, dest)
@@ -58,7 +59,7 @@ async function main() {
       // Create deterministic stub
       await fs.mkdir(configDir, { recursive: true })
       const stub = {
-        capability: 'TODO_SELECT_CAPABILITY',
+        capability: capability,
         languageOptions: ['English', 'Hindi']
       }
       const content = JSON.stringify(stub, Object.keys(stub), 2)

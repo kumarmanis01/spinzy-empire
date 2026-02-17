@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { exec } from 'child_process';
+import { spawn } from 'child_process';
+import { logger } from '@sentry/nextjs';
 
 function slugify(topic: string) {
   return (
@@ -20,18 +21,35 @@ export async function POST(req: Request) {
 
   const slug = slugify(topic);
 
+  logger.info("Generated slug:", slug);
+
   const templatePath = 'app-factory/app-template';
   const destPath = `app-factory/generated-apps/${slug}`;
 
-  const command = `npm run generate-app -- ${templatePath} ${destPath}`;
+  const child = spawn('npm', ['run', 'generate-app', '--', templatePath, destPath, capability], { shell: true });
+
+  let output = '';
+  let errorOutput = '';
+
+  child.stdout.on('data', (data) => {
+    const s = data.toString();
+    output += s;
+    logger.info(s);
+  });
+
+  child.stderr.on('data', (data) => {
+    const s = data.toString();
+    errorOutput += s;
+    logger.error(s);
+  });
 
   return new Promise((resolve) => {
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
+    child.on('close', (code) => {
+      if (code !== 0) {
         resolve(
           NextResponse.json({
             success: false,
-            error: stderr || error.message,
+            error: errorOutput || output || `Process exited with code ${code}`,
           })
         );
       } else {
@@ -39,7 +57,7 @@ export async function POST(req: Request) {
           NextResponse.json({
             success: true,
             slug,
-            output: stdout?.toString?.() ?? null,
+            output,
           })
         );
       }
