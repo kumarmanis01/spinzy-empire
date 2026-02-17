@@ -1,28 +1,22 @@
-import React, { useState } from 'react'
+"use client"
+
+import React from 'react'
+import config from '../../../app-config/quick-solver.json'
 import { InputScreen } from '../input-screen/InputScreen'
 import { ResultScreen } from '../result-screen/ResultScreen'
-import { Progress } from '../progress/Progress'
 
-export default function QuickSolverApp() {
-  const [step, setStep] = useState(1)
-  const [result, setResult] = useState<any>(null)
-
-  function handleResult(data: any) {
-    setResult(data)
-    setStep(2)
-  }
-
-  function back() {
-    setStep(1)
-    setResult(null)
-  }
+export default function App({ currentSlug }: { currentSlug?: string }) {
+  const [result, setResult] = React.useState<any>(null)
 
   return (
-    <div style={{ padding: 12, border: '1px solid #ddd' }}>
-      <h3>Quick Solver</h3>
-      <Progress step={step} total={2} />
-      {step === 1 && <InputScreen onResult={handleResult} />}
-      {step === 2 && <ResultScreen data={result} onBack={back} />}
+    <div>
+      <h2>{config.title || 'quick-solver'}</h2>
+
+      {!result ? (
+        <InputScreen onResult={setResult} />
+      ) : (
+        <ResultScreen result={result} currentSlug={currentSlug} />
+      )}
     </div>
   )
 }

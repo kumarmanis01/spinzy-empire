@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
-import React from 'react';
-import Link from 'next/link';
+import React from 'react'
+import Link from 'next/link'
 
 export interface ResultScreenProps {
-  result: any;
-  currentSlug?: string;
+  result: any
+  currentSlug?: string
 }
 
 export function ResultScreen({ result, currentSlug }: ResultScreenProps) {
@@ -20,14 +20,6 @@ export function ResultScreen({ result, currentSlug }: ResultScreenProps) {
         if (typeof payload?.question === 'string') topic = payload.question
         else if (typeof result?.question === 'string') topic = result.question
       }
-      if (!topic) {
-        try {
-          const m = window.location.pathname.match(/\/apps\/([^\/]+)/)
-          if (m) topic = m[1].replace(/-explainer$/, '').replace(/-/g, ' ')
-        } catch {
-          // ignore
-        }
-      }
       if (!topic) return
       topic = String(topic).trim()
       const key = topic
@@ -39,17 +31,9 @@ export function ResultScreen({ result, currentSlug }: ResultScreenProps) {
       // ignore
     }
   }, [result, currentSlug])
-  const payload = result?.payload || result;
-  const nextSlug = payload?.nextSlug;
-  const nextApps = nextSlug ? (Array.isArray(nextSlug) ? nextSlug : [nextSlug]) : [];
-
-  // Debugging helpers — remove or gate behind a flag in production
-  try {
-    // eslint-disable-next-line no-console
-    console.log('ResultScreen currentSlug', currentSlug);
-    // eslint-disable-next-line no-console
-    console.log('Result payload nextSlug', nextSlug);
-  } catch {}
+  const payload = result?.payload || result
+  const nextSlug = payload?.nextSlug
+  const nextApps = nextSlug ? (Array.isArray(nextSlug) ? nextSlug : [nextSlug]) : []
 
   return (
     <div>
@@ -69,5 +53,5 @@ export function ResultScreen({ result, currentSlug }: ResultScreenProps) {
         </div>
       )}
     </div>
-  );
+  )
 }

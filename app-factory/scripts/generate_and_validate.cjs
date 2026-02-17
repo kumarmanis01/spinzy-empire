@@ -22,7 +22,10 @@ function main() {
   const dest = path.resolve(args[1])
 
   // 1) Run the template copier
-  run(process.execPath, [path.join(__dirname, 'generate_from_template.cjs'), template, dest])
+  // Forward optional capability arg (if provided) to the generator so CLI and wrapper behave same
+  const capabilityArg = args[2]
+  const genArgs = capabilityArg ? [path.join(__dirname, 'generate_from_template.cjs'), template, dest, capabilityArg] : [path.join(__dirname, 'generate_from_template.cjs'), template, dest]
+  run(process.execPath, genArgs)
 
   // 2) Run the TypeScript validator (ts-node/esm loader)
   // Run validator and capture exit code so we can cleanup on failure
