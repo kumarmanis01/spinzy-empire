@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { spawn } from 'child_process';
 import { logger } from '@sentry/nextjs';
+import fs from 'fs'
+import path from 'path'
 
 function slugify(topic: string) {
   return (
@@ -53,6 +55,18 @@ export async function POST(req: Request) {
           })
         );
       } else {
+        try {
+          const configPath = path.join(process.cwd(), 'app-factory', 'app-config', `${slug}.json`)
+          const payload = {
+            capability,
+            languageOptions: ['English', 'Hindi'],
+          }
+          fs.writeFileSync(configPath, JSON.stringify(payload, null, 2) + '\n', 'utf8')
+          logger.info('Wrote app-config for', slug, '->', configPath)
+        } catch (e) {
+          logger.error('Failed to write app-config for', slug, e)
+        }
+
         resolve(
           NextResponse.json({
             success: true,
