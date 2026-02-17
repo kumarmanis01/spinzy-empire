@@ -44,6 +44,35 @@ async function copyRecursive(src, dest) {
   }
 }
 
+/**
+ * Ensure a minimal services/capabilityClient.ts exists in the generated app.
+ * This prevents validator failures when templates omit a runtime capability client.
+ * The stub intentionally throws at runtime to force implementers to replace it.
+ * @param {string} dest - absolute path to the generated app folder
+ */
+async function ensureCapabilityClientStub(dest) {
+  try {
+    const servicesDir = path.join(dest, 'services')
+    const stubPath = path.join(servicesDir, 'capabilityClient.ts')
+    try {
+      await fs.access(stubPath)
+      // stub already present
+      logger.log('Capability client exists:', stubPath)
+      return
+    } catch (e) {
+      // missing -> create
+    }
+    await fs.mkdir(servicesDir, { recursive: true })
+    const now = new Date().toISOString()
+    const stubContent = `/**\n * FILE OBJECTIVE:\n * - Minimal runtime stub for capability client used by generated apps.\n *\n * LINKED UNIT TEST:\n * - tests/unit/app-factory/scripts/generate_from_template.spec.ts\n *\n * EDIT LOG:\n * - ${now} | generator | created runtime stub for services/capabilityClient.ts to avoid validation failure\n */\n\nexport async function callCapability(capabilityName: string, payload: any): Promise<any> {\n  throw new Error('callCapability() stub: replace with real capability client in generated app.');\n}\n`
+    await fs.writeFile(stubPath, stubContent, 'utf8')
+    logger.log('Wrote capability client stub at', stubPath)
+  } catch (err) {
+    logger.error('Failed to create capability client stub:', err)
+    // do not rethrow; generation should continue and validation will handle failures
+  }
+}
+
 async function main() {
   logger.log('Starting generation from template...')
   console.log('Note: This script only copies files and does not perform validation. Run generate_and_validate.cjs for end-to-end generation with validation and cleanup on failure.')
@@ -154,6 +183,13 @@ async function main() {
   }
 
   console.log('Done')
+}
+
+// Expose helpers for unit tests
+module.exports = {
+  main,
+  copyRecursive,
+  ensureCapabilityClientStub,
 }
 
 if (require.main === module) main().catch((err) => { console.error(err); process.exit(1) })

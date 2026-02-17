@@ -3,6 +3,7 @@ export const GeneratedApps: Record<string, () => Promise<any>> = {
   "math-quick-tips": () => import("./math-quick-tips/onboarding/App"),
   "quick-solver": () => import("./quick-solver/onboarding/App"),
   "sample-auto-config": () => import("./sample-auto-config/onboarding/App"),
+  "test-registry3": () => import("./test-registry3/onboarding/App"),
 };
 
 export default GeneratedApps;
