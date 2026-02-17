@@ -16,7 +16,7 @@ export function InputScreen({ onResult }: InputScreenProps) {
       const parsed = payload ? JSON.parse(payload) : {};
       const res = await callCapability(capability, parsed);
       onResult(res);
-    } catch (_err) {
+    } catch {
       onResult({ success: false, error: 'invalid payload' });
     } finally {
       setLoading(false);

@@ -32,12 +32,12 @@ export function InputScreen({ onResult, initialQuery }: InputScreenProps) {
           };
           localStorage.setItem('topicInterest', JSON.stringify(existing));
           localStorage.setItem('lastCapability', config.capability);
-        } catch (_) {
+        } catch {
           // ignore localStorage errors (e.g., SSR or privacy settings)
         }
       }
       onResult(res)
-    } catch (_err) {
+    } catch {
       onResult({ success: false, error: 'invoke-failed' })
     } finally {
       setLoading(false)

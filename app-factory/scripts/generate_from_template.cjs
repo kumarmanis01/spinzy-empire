@@ -10,11 +10,20 @@
 const fs = require('fs').promises
 const path = require('path')
 
+// Lightweight logger shim for this script — forwards to console and avoids
+// ReferenceError when running in environments where `logger` isn't provided.
+const logger = {
+  log: console.log.bind(console),
+  warn: console.warn.bind(console),
+  error: console.error.bind(console),
+}
+
 async function ensureDir(dir) {
   try { await fs.mkdir(dir, { recursive: true }) } catch (e) {}
 }
 
 async function copyRecursive(src, dest) {
+  logger.log("Copy Recusrsive", src, dest);
   const stat = await fs.stat(src)
   if (stat.isDirectory()) {
     await ensureDir(dest)
@@ -36,6 +45,8 @@ async function copyRecursive(src, dest) {
 }
 
 async function main() {
+  logger.log('Starting generation from template...')
+  console.log('Note: This script only copies files and does not perform validation. Run generate_and_validate.cjs for end-to-end generation with validation and cleanup on failure.')
   const args = process.argv.slice(2)
   if (args.length < 2) {
     console.error('Usage: node generate_from_template.cjs <templatePath> <destinationPath>')
@@ -113,6 +124,7 @@ async function main() {
 
   // Update registry.ts to include the new app so runtime imports are static-analysable.
   try {
+    logger.log("UPDATING REGISTRY FOR", appName);
     const fsSync = require('fs')
     const registryPath = path.resolve(process.cwd(), 'app-factory', 'generated-apps', 'registry.ts')
     const newEntry = `  "${appName}": () => import("./${appName}/onboarding/App"),\n`
@@ -125,10 +137,15 @@ async function main() {
 
     registryContent = fsSync.readFileSync(registryPath, 'utf8')
     if (!registryContent.includes(`"${appName}"`)) {
-      // Insert before the closing `};` token
-      const updated = registryContent.replace(/\};\s*$/, `${newEntry}};`)
-      fsSync.writeFileSync(registryPath, updated, 'utf8')
-      console.log('Updated registry with', appName)
+      // Insert before the first closing `};` occurrence so we don't rely on EOF layout
+      const insertPosition = registryContent.indexOf('};')
+      if (insertPosition === -1) {
+        console.error('Registry format invalid — could not find insertion point')
+      } else {
+        const updated = registryContent.slice(0, insertPosition) + newEntry + registryContent.slice(insertPosition)
+        fsSync.writeFileSync(registryPath, updated, 'utf8')
+        console.log('Updated registry with', appName)
+      }
     } else {
       console.log('Registry already contains', appName)
     }
