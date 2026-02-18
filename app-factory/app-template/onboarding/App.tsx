@@ -9,7 +9,7 @@ export default function App({ currentSlug }: { currentSlug?: string }) {
   const [result, setResult] = React.useState<any>(null)
 
   return (
-    <div>
+    <div style={{ padding: 24 }}>
       <h2>{config.title || '${APP_NAME}'}</h2>
 
       {!result ? (

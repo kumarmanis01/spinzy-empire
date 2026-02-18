@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { callCapability } from '../services/capabilityClient'
-import config from '../../../app-config/${APP_NAME}.json'
+import config from '../../../app-config/algebra-explainer.json'
 
 export function InputScreen({ onResult }: { onResult: (data: any) => void }) {
   const [query, setQuery] = useState('')
