@@ -1,4 +1,8 @@
 {
   "capability": "topic_explanation",
-  "languageOptions": ["English", "Hindi"]
+  "title": "Algebra Explainer",
+  "languageOptions": [
+    "English",
+    "Hindi"
+  ]
 }

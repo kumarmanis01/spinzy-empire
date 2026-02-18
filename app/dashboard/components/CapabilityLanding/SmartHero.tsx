@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import useCurrentUser from '@/hooks/useCurrentUser';
+import { GeneratedApps } from '@/app-factory/generated-apps/registry';
 
 export default function SmartHero() {
   const router = useRouter();
@@ -12,6 +13,13 @@ export default function SmartHero() {
 
   function handleExplain() {
     const q = query.trim();
+    if (q) {
+      const slug = q.toLowerCase().replace(/\s+/g, '-') + '-explainer';
+      if (GeneratedApps[slug]) {
+        router.push(`/apps/${slug}`);
+        return;
+      }
+    }
     const url = `/apps/topic-explanation${q ? `?q=${encodeURIComponent(q)}` : ''}`;
     router.push(url);
   }

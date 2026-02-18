@@ -1,4 +1,8 @@
 {
   "capability": "study_planning",
-  "languageOptions": ["English", "Hindi"]
+  "title": "Math Quick Tips",
+  "languageOptions": [
+    "English",
+    "Hindi"
+  ]
 }

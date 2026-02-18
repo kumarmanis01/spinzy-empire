@@ -2,6 +2,7 @@
 
 import React from 'react';
 import RecommendationCard from './RecommendationCard';
+import { GeneratedApps } from '@/app-factory/generated-apps/registry';
 
 function getColdStartApps(user: any) {
   if (!user) return [];
@@ -38,58 +39,65 @@ function getColdStartApps(user: any) {
 export default function RecommendedSection({ user }: { user?: any }) {
   const items = getColdStartApps(user);
 
-  const fallback = [
-    { name: 'Algebra Explainer', description: 'Step-by-step algebra concepts and worked examples.', href: '/apps/algebra-explainer' },
-    { name: 'Photosynthesis Explainer', description: 'Clear explanation of how plants make food.', href: '/apps/photosynthesis-explainer' },
-  ];
-  const [lastTopic, setLastTopic] = React.useState<string | null>(null);
+  const [topicInterest, setTopicInterest] = React.useState<Record<string, { count: number; lastViewed: number }>>({});
 
   React.useEffect(() => {
     try {
-      const v = localStorage.getItem('lastTopic');
-      setLastTopic(v);
+      const stored = JSON.parse(localStorage.getItem('topicInterest') || '{}');
+      setTopicInterest(stored);
     } catch (_) {
-      setLastTopic(null);
+      setTopicInterest({});
     }
   }, []);
 
-  let toRender = items.length > 0 ? items : fallback;
+  let toRender = items;
   let header = 'Popular For Your Subjects';
 
-  const [resolvedRecommendation, setResolvedRecommendation] = React.useState<{ name: string; description: string; href: string } | null>(null);
+  const entries = Object.keys(topicInterest).map((t) => ({
+    topic: t,
+    count: topicInterest[t].count || 0,
+    lastViewed: topicInterest[t].lastViewed || 0,
+  }));
 
-  React.useEffect(() => {
-    if (!lastTopic) return;
+  if (entries.length > 0) {
+    // sort by count desc, then lastViewed desc
+    entries.sort((a, b) => {
+      if (b.count !== a.count) return b.count - a.count;
+      return b.lastViewed - a.lastViewed;
+    });
 
     header = 'Recommended For You';
+    toRender = entries.map((e) => {
+      const raw = e.topic.toLowerCase().trim();
+      const slugBase = raw.replace(/\s+/g, '-');
+      const candidateSlug = `${slugBase}-explainer`;
+      return {
+        name: `${e.topic} Explainer`,
+        description: `Learn about ${e.topic}.`,
+        href: `/apps/${candidateSlug}`,
+        __slug: candidateSlug,
+      };
+    });
+  }
 
-    // deterministic slug mapping
-    const raw = lastTopic.toLowerCase().trim();
-    const slugBase = raw.replace(/\s+/g, '-');
-    const candidateSlug = `${slugBase}-explainer`;
+  const hrefToSlug = (href: string) => {
+    if (!href) return '';
+    const parts = href.replace(/\/+$/, '').split('/');
+    return parts[parts.length - 1] || '';
+  };
 
-    // check if route exists by attempting a HEAD request
-    (async () => {
-      try {
-        const resp = await fetch(`/apps/${candidateSlug}`, { method: 'HEAD' });
-        if (resp.ok) {
-          setResolvedRecommendation({
-            name: `${lastTopic} Explainer`,
-            description: `Learn about ${lastTopic}.`,
-            href: `/apps/${candidateSlug}`,
-          });
-        } else {
-          setResolvedRecommendation(null);
-        }
-      } catch (e) {
-        setResolvedRecommendation(null);
-      }
-    })();
-  }, [lastTopic]);
+  const filtered = toRender.filter((it) => {
+    const slug = (it as any).__slug || hrefToSlug(it.href);
+    return !!GeneratedApps[slug];
+  });
 
-  if (resolvedRecommendation) {
-    toRender = [resolvedRecommendation];
-    header = 'Recommended For You';
+  if (filtered.length === 0) {
+    return (
+      <section className="mt-6">
+        <h2 className="text-lg font-semibold">Explore Topics</h2>
+        <p className="text-sm text-muted-foreground">Search to start learning.</p>
+      </section>
+    );
   }
 
   return (
@@ -98,7 +106,7 @@ export default function RecommendedSection({ user }: { user?: any }) {
         <h2 className="text-lg font-semibold">{header}</h2>
       </div>
       <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {toRender.map((it) => (
+        {filtered.map((it) => (
           <RecommendationCard key={it.name} name={it.name} description={it.description} href={it.href} />
         ))}
       </div>

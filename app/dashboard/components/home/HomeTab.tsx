@@ -23,6 +23,7 @@ import { RecoveryBanner } from './RecoveryBanner';
 import { TodaysLearningCard } from './TodaysLearningCard';
 import { ContinueWhereLeftOff } from './ContinueWhereLeftOff';
 import { WeeklyProgressSnapshot } from './WeeklyProgressSnapshot';
+import RecentlyViewed from './RecentlyViewed';
 
 interface HomeTabProps {
   /** Callback when user clicks on a learning item to start/resume */
@@ -55,6 +56,11 @@ export function HomeTab({ onStartLearning, onContinueActivity }: HomeTabProps) {
       {/* Primary CTA - Today's Learning */}
       <section aria-labelledby="todays-learning-heading">
         <TodaysLearningCard onStartLearning={onStartLearning} />
+      </section>
+
+      {/* Recently Viewed - shows when local usage exists */}
+      <section aria-labelledby="recently-viewed-heading">
+        <RecentlyViewed />
       </section>
 
       {/* Secondary - Resume Last Activity */}

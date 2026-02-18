@@ -1,47 +1,43 @@
-import React, { useState } from 'react';
-import { callCapability } from '../services/capabilityClient';
+"use client"
 
-export interface InputScreenProps {
-  onResult: (data: any) => void;
-}
+import React, { useState } from 'react'
+import { callCapability } from '../services/capabilityClient'
+import config from '../../../app-config/algebra-explainer.json'
 
-export function InputScreen({ onResult }: InputScreenProps) {
-  const [capability, setCapability] = useState('study_planning');
-  const [payload, setPayload] = useState('');
-  const [loading, setLoading] = useState(false);
+export function InputScreen({ onResult }: { onResult: (data: any) => void }) {
+  const [query, setQuery] = useState('')
+  const [loading, setLoading] = useState(false)
 
   async function submit() {
-    setLoading(true);
+    if (!query.trim()) return
+    setLoading(true)
     try {
-      const parsed = payload ? JSON.parse(payload) : {};
-      const res = await callCapability(capability, parsed);
-      onResult(res);
-    } catch (err) {
-      onResult({ success: false, error: 'invalid payload' });
+      const res = await callCapability(config.capability, {
+        question: query,
+        context: {},
+      })
+      onResult(res)
+    } catch (e) {
+      onResult({ success: false })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   return (
     <div>
-      <h3>Micro-app Input</h3>
-      <div>
-        <label>Capability: </label>
-        <select value={capability} onChange={(e) => setCapability(e.target.value)}>
-          <option value="study_planning">study_planning</option>
-          <option value="doubt_solving">doubt_solving</option>
-          <option value="revision_strategy">revision_strategy</option>
-          <option value="topic_explanation">topic_explanation</option>
-        </select>
-      </div>
-      <div>
-        <label>Payload (JSON):</label>
-        <textarea value={payload} onChange={(e) => setPayload(e.target.value)} rows={6} cols={60} />
-      </div>
-      <div>
-        <button onClick={submit} disabled={loading}>{loading ? 'Calling...' : 'Call Capability'}</button>
-      </div>
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Enter your topic..."
+        style={{ width: '100%', padding: 8 }}
+      />
+
+      <button onClick={submit} disabled={loading} style={{ marginTop: 12 }}>
+        {loading ? 'Processing...' : 'Run'}
+      </button>
     </div>
-  );
+  )
 }
+
+export default InputScreen

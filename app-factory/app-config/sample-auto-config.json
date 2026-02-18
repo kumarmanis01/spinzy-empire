@@ -1,5 +1,6 @@
 {
   "capability": "TODO_SELECT_CAPABILITY",
+  "title": "Sample Auto Config",
   "languageOptions": [
     "English",
     "Hindi"
